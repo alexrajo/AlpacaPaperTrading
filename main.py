@@ -6,7 +6,11 @@ from datetime import datetime
 from stock_retriever import *
 import strategies.golden_cross
 
-from config import *
+import config
+
+ALPHA_VANTAGE_KEY = config.ALPHA_VANTAGE_KEY
+KEY_ID = config.KEY_ID
+SECRET_KEY = config.SECRET_KEY
 
 
 ALPACA_ENDPOINT = "https://paper-api.alpaca.markets"
@@ -38,12 +42,15 @@ class Trader:
         positions = self.api.list_positions()
         for pos in positions:
             if pos["symbol"] == symbol:
-                print("Already own shares of {}".format(symbol))
+                print("I already own shares of {}".format(symbol))
                 return
 
         buying_power = self.account.buying_power
         price = stock_info["c"]
         qty = int(buying_power/price/max(1, stock_amount-len(positions)))
+        if qty < 1:
+            return
+
         self.market_buy(symbol=symbol, qty=qty)
 
     def market_buy(self, symbol, qty):
@@ -54,16 +61,13 @@ class Trader:
             type="market",
             time_in_force="day"
         )
-        print("Bought {} shares of {}".format(qty, symbol))
+        print("({}) Bought {} shares of {}".format(datetime.now(), qty, symbol))
 
     def sell_all(self, symbol):
         position = self.api.get_position(symbol=symbol)
         if position is None:
             print("I don't own any shares of {}".format(symbol))
             return
-
-        buying_power = self.account.buying_power
-        portfolio = self.account.equity
 
         qty = position["qty"]
         self.market_sell(symbol, qty=qty)
@@ -76,7 +80,7 @@ class Trader:
             type='market',
             time_in_force='day'
         )
-        print("Sold {} shares of {}".format(qty, symbol))
+        print("({}) Placed sell order for {} shares of {}".format(datetime.now(), qty, symbol))
 
     def clear(self):
         # positions = self.api.list_positions()
@@ -92,7 +96,7 @@ if __name__ == "__main__":
     while True:
         calcs = {}
         if not clock.is_open:
-            trader.clear()
+            # trader.clear()
 
             for calc in calcs:
                 del calc
@@ -102,8 +106,10 @@ if __name__ == "__main__":
             now = datetime.strptime(str(clock.timestamp)[:-16], "%Y-%m-%d %H:%M:%S")
             difference = next_open - now
             seconds_to_open = difference.total_seconds()
+            print("Waiting for market to open in {} hours".format(int(seconds_to_open/360)/10))
             time.sleep(seconds_to_open)
 
+        start_portfolio = account.equity
         trader.target_stocks = get_stocks(stock_amount)
 
         for stock in trader.target_stocks:
@@ -129,7 +135,6 @@ if __name__ == "__main__":
                 }
                 calc.on_data(info=info)
 
-
         while clock.is_open:
             for stock in trader.target_stocks:
                 calc = calcs[stock["symbol"]]
@@ -152,9 +157,14 @@ if __name__ == "__main__":
 
                 decision = calc.on_data(info=info)  # 1=buy, -1=sell
                 if decision == 1:
-
                     trader.fullbuy(symbol=stock["symbol"], stock_info=info)
                 elif decision == -1:
                     trader.sell_all(symbol=stock["symbol"])
 
             time.sleep(tick_interval)
+
+        end_portfolio = account.equity
+        percent_change = int(end_portfolio/start_portfolio*10000)/100
+        str_pc = percent_change < 0 and str(percent_change) or "+{}".format(percent_change)
+
+        print("================\nDate: {}\nOpen portfolio value: {}\nClose portfolio value: {}\nPercent-change: {}\n================\n ".format(str(datetime.date(datetime.now())), start_portfolio, end_portfolio, percent_change))

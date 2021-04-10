@@ -9,9 +9,6 @@ class Strategy:
             "50": [],
             "200": []
         }
-        self.charts = [
-            ["ma", 50, 200]
-        ]
 
     def get_moving_average(self, periods):
         self.ma_sums[str(periods)] += self.history[-1]
