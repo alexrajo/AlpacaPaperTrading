@@ -136,7 +136,9 @@ if __name__ == "__main__":
                 calc.on_data(info=info)
 
         while clock.is_open:
-			print("({}) Portfolio value: {}".format(datetime.now(), account.equity))
+
+            print("({}) Portfolio value: {}".format(datetime.now(), account.equity))
+
             for stock in trader.target_stocks:
                 calc = calcs[stock["symbol"]]
                 if calc is None:
