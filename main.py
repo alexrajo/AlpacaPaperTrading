@@ -3,14 +3,14 @@ import alpha_vantage as alphav
 import requests
 import time
 from datetime import datetime
+import os
+from os import environ
 from stock_retriever import *
 import strategies.golden_cross
 
-import config
-
-ALPHA_VANTAGE_KEY = config.ALPHA_VANTAGE_KEY
-KEY_ID = config.KEY_ID
-SECRET_KEY = config.SECRET_KEY
+ALPHA_VANTAGE_KEY = environ["ALPHA_VANTAGE_KEY"]
+KEY_ID = environ["KEY_ID"]
+SECRET_KEY = environ["SECRET_KEY"]
 
 
 ALPACA_ENDPOINT = "https://paper-api.alpaca.markets"
@@ -136,6 +136,7 @@ if __name__ == "__main__":
                 calc.on_data(info=info)
 
         while clock.is_open:
+			print("({}) Portfolio value: {}".format(datetime.now(), account.equity))
             for stock in trader.target_stocks:
                 calc = calcs[stock["symbol"]]
                 if calc is None:
