@@ -28,7 +28,7 @@ LATEST_PARAMS = {
     "symbol": "AAPL",
     "apikey": ALPHA_VANTAGE_KEY}
 
-stock_amount = 1
+stock_amount = 3
 tick_interval = 300
 
 
