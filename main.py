@@ -113,7 +113,6 @@ if __name__ == "__main__":
         trader.target_stocks = get_stocks(stock_amount)
 
         for stock in trader.target_stocks:
-            continue
             params = INTRADAY_PARAMS
             params["symbol"] = stock["symbol"]
             response = requests.get(DATA_ENDPOINT, params=params).json()
