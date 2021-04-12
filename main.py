@@ -8,9 +8,11 @@ from os import environ
 from stock_retriever import *
 import strategies.golden_cross
 
-ALPHA_VANTAGE_KEY = environ["ALPHA_VANTAGE_KEY"]
-KEY_ID = environ["KEY_ID"]
-SECRET_KEY = environ["SECRET_KEY"]
+import config
+
+ALPHA_VANTAGE_KEY = config.ALPHA_VANTAGE_KEY #environ["ALPHA_VANTAGE_KEY"]
+KEY_ID = config.KEY_ID # environ["KEY_ID"]
+SECRET_KEY = config.SECRET_KEY # environ["SECRET_KEY"]
 
 
 ALPACA_ENDPOINT = "https://paper-api.alpaca.markets"
@@ -18,7 +20,7 @@ DATA_ENDPOINT = "https://www.alphavantage.co/query"
 INTRADAY_PARAMS = {
     "function": "TIME_SERIES_INTRADAY",
     "symbol": "AAPL",
-    "interval": "5Min",
+    "interval": "5min",
     "adjusted": True,
     "outputsize": "full",
     "apikey": ALPHA_VANTAGE_KEY}
@@ -116,7 +118,8 @@ if __name__ == "__main__":
             params = INTRADAY_PARAMS
             params["symbol"] = stock["symbol"]
             response = requests.get(DATA_ENDPOINT, params=params).json()
-            content = response["Time Series (Daily)"]
+            print(response)
+            content = response["Time Series (5min)"]
 
             calc = strategies.golden_cross.Strategy()
             calcs[stock["symbol"]] = calc
@@ -128,11 +131,13 @@ if __name__ == "__main__":
                     "o": float(bar["1. open"]),
                     "h": float(bar["2. high"]),
                     "l": float(bar["3. low"]),
-                    # "c": float(bar["4. close"]),
-                    "c": float(bar["5. adjusted close"]),
-                    "v": int(bar["6. volume"])
+                    "c": float(bar["4. close"]),
+                    # "c": float(bar["5. adjusted close"]),
+                    "v": int(bar["5. volume"])
                 }
                 calc.on_data(info=info)
+
+        time.sleep(61)
 
         while clock.is_open:
 
