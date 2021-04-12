@@ -37,6 +37,7 @@ class Trader:
         self.api = alpaca.REST(KEY_ID, SECRET_KEY, base_url=ALPACA_ENDPOINT)
         self.account = self.api.get_account()
         self.target_stocks = []
+        self.positions = []
 
     def fullbuy(self, symbol, stock_info):
         positions = self.api.list_positions()
@@ -64,12 +65,16 @@ class Trader:
         print("({}) Bought {} shares of {}".format(datetime.now(), qty, symbol))
 
     def sell_all(self, symbol):
-        position = self.api.get_position(symbol=symbol)
-        if position is None:
+        self.positions = self.api.list_positions()
+        qty = 0
+        for pos in self.positions:
+            if pos["symbol"] == symbol:
+                qty = pos["qty"]
+
+        if qty < 1:
             print("I don't own any shares of {}".format(symbol))
             return
 
-        qty = position["qty"]
         self.market_sell(symbol, qty=qty)
 
     def market_sell(self, symbol, qty):
