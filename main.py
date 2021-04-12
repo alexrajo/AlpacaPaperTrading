@@ -48,7 +48,7 @@ class Trader:
 
         buying_power = self.account.buying_power
         price = stock_info["c"]
-        qty = int(buying_power/price/max(1, stock_amount-len(positions)))
+        qty = int(float(buying_power)/price/max(1, stock_amount-len(positions)))
         if qty < 1:
             return
 
@@ -121,7 +121,6 @@ if __name__ == "__main__":
             params = INTRADAY_PARAMS
             params["symbol"] = stock["symbol"]
             response = requests.get(DATA_ENDPOINT, params=params).json()
-            print(response)
             content = response["Time Series (5min)"]
 
             calc = strategies.golden_cross.Strategy()
