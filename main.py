@@ -8,11 +8,9 @@ from os import environ
 from stock_retriever import *
 import strategies.golden_cross
 
-import config
-
-ALPHA_VANTAGE_KEY = config.ALPHA_VANTAGE_KEY #environ["ALPHA_VANTAGE_KEY"]
-KEY_ID = config.KEY_ID # environ["KEY_ID"]
-SECRET_KEY = config.SECRET_KEY # environ["SECRET_KEY"]
+ALPHA_VANTAGE_KEY = environ["ALPHA_VANTAGE_KEY"]
+KEY_ID = environ["KEY_ID"]
+SECRET_KEY = environ["SECRET_KEY"]
 
 
 ALPACA_ENDPOINT = "https://paper-api.alpaca.markets"
